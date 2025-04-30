@@ -1,15 +1,15 @@
 import { MessageData } from "genkit";
 import { TaskYieldUpdate } from "../../server/handler.js";
-import {
-  TaskContext,
-  A2AServer
-} from "../../server/index.js"; // Import server components
+import { TaskContext, A2AServer } from "../../server/index.js"; // Import server components
 import * as schema from "../../schema.js"; // Import schema for types
 import { ai } from "./genkit.js";
 import { CodeMessage } from "./code-format.js"; // CodeMessageSchema might not be needed here
+import dotenv from "dotenv";
 
-if (!process.env.GEMINI_API_KEY) {  
-  console.error("GEMINI_API_KEY environment variable not set.")
+dotenv.config();
+
+if (!process.env.GEMINI_API_KEY) {
+  console.error("GEMINI_API_KEY environment variable not set.");
   process.exit(1);
 }
 

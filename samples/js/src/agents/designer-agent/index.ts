@@ -7,10 +7,17 @@ import {
 import { MessageData } from "genkit";
 import { ai } from "./genkit.js";
 import { generateImage, manipulateImage, createPoster } from "./tools.js";
+import dotenv from "dotenv";
 
-if (!process.env.GEMINI_API_KEY || !process.env.OPENAI_API_KEY) {
+dotenv.config();
+
+if (
+  !process.env.GEMINI_API_KEY ||
+  !process.env.OPENAI_API_KEY ||
+  !process.env.DESIGNER_AGENT_PK
+) {
   console.error(
-    "GEMINI_API_KEY and OPENAI_API_KEY environment variables are required"
+    "GEMINI_API_KEY, OPENAI_API_KEY and DESIGNER_AGENT_PK environment variables are required"
   );
   process.exit(1);
 }
