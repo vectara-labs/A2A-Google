@@ -104,6 +104,11 @@ Focus on the most recent parts of the conversation primarily.
 
 If there is an active agent, send the request to that agent with the update task tool.
 
+If you are sending a task to an agent, make sure to include the previous messages or the context in the task metadata.
+If you are sending a task to a different agent, make sure to include the previous messages or the context in the task metadata.
+
+When you need to split a task into two and send it to two different agents, make sure to include the previous messages or the context in the task.
+
 Agents:
 {self.agents}
 
@@ -168,7 +173,6 @@ Current agent: {current_agent['active_agent']}
     else:
       taskId = str(uuid.uuid4())
     sessionId = state['session_id']
-    task: Task
     messageId = ""
     metadata = {}
     if 'input_message_metadata' in state:
@@ -178,16 +182,29 @@ Current agent: {current_agent['active_agent']}
     if not messageId:
       messageId = str(uuid.uuid4())
     metadata.update(**{'conversation_id': sessionId, 'message_id': messageId})
+    
+    # Add previous messages as context to the message itself
+    full_message = message
+    if 'input_message_metadata' in state and 'previous_messages' in state['input_message_metadata']:
+      prev_messages = state['input_message_metadata']['previous_messages']
+      if prev_messages:
+        context = "\n\nPREVIOUS MESSAGES FOR CONTEXT:\n"
+        for prev_msg in prev_messages[-5:]:  # Get last 5 messages
+          role = prev_msg['role']
+          text_parts = [part['text'] for part in prev_msg['parts'] if part['type'] == 'text' and part['text']]
+          if text_parts:
+            context += f"{role}: {' '.join(text_parts)}\n"
+        full_message = full_message + context
+
     request: TaskSendParams = TaskSendParams(
         id=taskId,
         sessionId=sessionId,
         message=Message(
             role="user",
-            parts=[TextPart(text=message)],
+            parts=[TextPart(text=full_message)],
             metadata=metadata,
         ),
         acceptedOutputModes=["text", "text/plain", "image/png"],
-        # pushNotification=None,
         metadata={'conversation_id': sessionId},
     )
     task = await client.send_task(request, self.task_callback)
