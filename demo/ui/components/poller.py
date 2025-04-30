@@ -1,6 +1,7 @@
 import mesop as me
 from state.state import AppState
-from state.host_agent_service import UpdateAppState
+from state.host_agent_service import UpdateAppState, UpdateWalletBalances, ListRemoteAgents
+from state.agent_state import AgentState
 
 @me.content_component
 def polling_buttons():
@@ -44,6 +45,11 @@ async def force_refresh(e: me.ClickEvent):
     """Refresh app state event handler"""
     yield
     app_state = me.state(AppState)
+    agent_state = me.state(AgentState)
+    # Update wallet balances first
+    # await UpdateWalletBalances(agent_state)
+    
+    # Then refresh the entire app state
     await UpdateAppState(app_state, app_state.current_conversation_id)
     yield
 

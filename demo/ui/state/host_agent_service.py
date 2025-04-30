@@ -3,7 +3,7 @@ import json
 import traceback
 import sys
 
-from typing import Tuple, Any
+from typing import Tuple, Any, List, Optional
 from service.client.client import ConversationClient
 from service.types import (
     Conversation,
@@ -29,6 +29,8 @@ from .state import (
 import asyncio
 import threading
 from common.types import Artifact, Message, Task, Part
+from state.agent_state import AgentState
+from utils.wallet import get_balance
 
 server_url = "http://localhost:12000"
 
@@ -60,6 +62,8 @@ async def ListRemoteAgents():
   client = ConversationClient(server_url)
   try:
     response = await client.list_agents(ListAgentRequest())
+    # for agent in response.result:
+    #   agent.walletBalance = get_balance(agent.walletAddress)
     return response.result
   except Exception as e:
     print("Failed to read agents", e)
@@ -158,6 +162,20 @@ async def UpdateApiKey(api_key: str):
     except Exception as e:
         print("Failed to update API key: ", e)
         return False
+
+async def UpdateWalletBalances():
+    """Update wallet balances for all agents"""
+    agents = await ListRemoteAgents()
+    updated_agents = []
+    for agent in agents:
+        try:
+            state = AgentState()
+            await UpdateAgentState(state, agent)
+            updated_agents.append(state)
+        except Exception as e:
+            print(f"Failed to update agent: {e}")
+            updated_agents.append(agent)
+    return updated_agents
 
 def convert_message_to_state(message: Message) -> StateMessage:
   if not message:

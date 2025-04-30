@@ -12,6 +12,7 @@ from state.host_agent_service import ListRemoteAgents, AddRemoteAgent
 from state.state import AppState
 from utils.agent_card import get_agent_card
 from common.types import JSONRPCError
+from utils.wallet import get_balance
 
 
 def agent_list_page(app_state: AppState):
@@ -50,11 +51,14 @@ def agent_list_page(app_state: AppState):
           if state.wallet_address:
             me.text(f"Agent Wallet Address: {state.wallet_address}")
           if state.wallet_balance:
-            me.text(f"Agent Wallet Balance: {state.wallet_balance}")
+            me.text(f"Agent Wallet Balance: {str(state.wallet_balance)}")
+            # state.wallet_balance = float(get_balance(state.wallet_address))
+            # me.text(f"Agent Wallet Balance: {str(state.wallet_balance)}")
 
           if state.agent_name:
             me.text(f"Streaming Supported: {state.stream_supported}")
             me.text(f"Push Notifications Supported: {state.push_notifications_supported}")
+          
         with dialog_actions():
           if not state.agent_name:
             me.button("Read", on_click=load_agent_info)
@@ -68,7 +72,7 @@ def set_agent_address(e: me.InputBlurEvent):
     state.agent_address = e.value
 
 
-def load_agent_info(e: me.ClickEvent):
+async def load_agent_info(e: me.ClickEvent):
   state = me.state(AgentState)
   try:
     state.error = None
@@ -81,7 +85,9 @@ def load_agent_info(e: me.ClickEvent):
     state.stream_supported = agent_card_response.capabilities.streaming
     state.push_notifications_supported = agent_card_response.capabilities.pushNotifications
     state.wallet_address = agent_card_response.walletAddress
-    state.wallet_balance = agent_card_response.walletBalance
+    state.wallet_balance = float(get_balance(state.wallet_address))
+    print(state.wallet_balance)
+    
   except Exception as e:
     print(e)
     state.agent_name = None
@@ -95,6 +101,7 @@ def cancel_agent_dialog(e: me.ClickEvent):
 
 async def save_agent(e: me.ClickEvent):
     state = me.state(AgentState)
+    state.wallet_balance = float(get_balance(state.wallet_address))
     await AddRemoteAgent(state.agent_address)
     state.agent_address = ""
     state.agent_name = ""

@@ -5,6 +5,7 @@ from typing import List, Tuple
 from state.state import AppState
 from state.agent_state import AgentState
 from common.types import AgentCard
+from utils.wallet import get_balance
 
 @me.component
 def agents_list(
@@ -33,7 +34,10 @@ def agents_list(
     df_data["Output Modes"].append(", ".join(agent_info.defaultOutputModes))
     df_data["Streaming"].append(agent_info.capabilities.streaming)
     df_data["Wallet Address"].append(agent_info.walletAddress)
-    df_data["Wallet Balance"].append(agent_info.walletBalance)
+    # import random
+    # df_data["Wallet Balance"].append(random.random())
+    # df_data["Wallet Balance"].append(agent_info.walletBalance)
+    df_data["Wallet Balance"].append(get_balance(agent_info.walletAddress))
   df = pd.DataFrame(
       pd.DataFrame(df_data),
       columns=[
@@ -49,6 +53,7 @@ def agents_list(
       ],
   )
   with me.box(
+      key="agents_list_container",
       style=me.Style(
           display="flex",
           justify_content="space-between",
