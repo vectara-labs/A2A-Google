@@ -142,7 +142,18 @@ class ADKHostManager(ApplicationManager):
     # Now check the conversation and attach the message id.
     conversation = self.get_conversation(conversation_id)
     if conversation:
+      # Get the previous 5 messages from the conversation
+      prev_messages = conversation.messages[-5:] if len(conversation.messages) > 0 else []
+      # Add previous messages to metadata
+      message.metadata['previous_messages'] = [
+        {
+          'role': msg.role,
+          'parts': [{'type': part.type, 'text': part.text if part.type == 'text' else None} for part in msg.parts],
+          'metadata': msg.metadata
+        } for msg in prev_messages
+      ]
       conversation.messages.append(message)
+    
     self.add_event(Event(
         id=str(uuid.uuid4()),
         actor='user',
@@ -418,6 +429,18 @@ class ADKHostManager(ApplicationManager):
 
   def adk_content_from_message(self, message: Message) -> types.Content:
     parts: list[types.Part] = []
+    
+    # Add context from previous messages if available
+    if message.metadata and 'previous_messages' in message.metadata:
+      context_text = "Previous conversation context:\n"
+      for prev_msg in message.metadata['previous_messages']:
+        role = prev_msg['role']
+        text_parts = [part['text'] for part in prev_msg['parts'] if part['type'] == 'text' and part['text']]
+        if text_parts:
+          context_text += f"{role}: {' '.join(text_parts)}\n"
+      parts.append(types.Part.from_text(text=context_text))
+    
+    # Add current message parts
     for part in message.parts:
       if part.type == "text":
         parts.append(types.Part.from_text(text=part.text))
