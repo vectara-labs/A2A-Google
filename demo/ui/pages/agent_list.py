@@ -47,6 +47,10 @@ def agent_list_page(app_state: AppState):
             me.text(f"Input Modes: {input_modes_string}")
           if state.output_modes:
             me.text(f"Output Modes: {output_modes_string}")
+          if state.wallet_address:
+            me.text(f"Agent Wallet Address: {state.wallet_address}")
+          if state.wallet_balance:
+            me.text(f"Agent Wallet Balance: {state.wallet_balance}")
 
           if state.agent_name:
             me.text(f"Streaming Supported: {state.stream_supported}")
@@ -76,6 +80,8 @@ def load_agent_info(e: me.ClickEvent):
     state.output_modes = agent_card_response.defaultOutputModes
     state.stream_supported = agent_card_response.capabilities.streaming
     state.push_notifications_supported = agent_card_response.capabilities.pushNotifications
+    state.wallet_address = agent_card_response.walletAddress
+    state.wallet_balance = agent_card_response.walletBalance
   except Exception as e:
     print(e)
     state.agent_name = None

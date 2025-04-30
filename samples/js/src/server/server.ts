@@ -21,13 +21,9 @@ import {
  * Options for configuring the A2AServer.
  */
 export interface A2AServerOptions {
-  /** Task storage implementation. Defaults to InMemoryTaskStore. */
-  taskStore?: TaskStore;
-  /** CORS configuration options or boolean/string. Defaults to allowing all origins. */
-  cors?: CorsOptions | boolean | string;
-  /** Base path for the A2A endpoint. Defaults to '/'. */
-  basePath?: string;
-  /** Agent Card for the agent being served. */
+  taskStore?: TaskStore; /** Task storage implementation. Defaults to InMemoryTaskStore. */
+  cors?: CorsOptions | boolean | string; /** CORS configuration options or boolean/string. Defaults to allowing all origins. */
+  basePath?: string; /** Base path for the A2A endpoint. Defaults to '/'. */
   card?: schema.AgentCard;
 }
 

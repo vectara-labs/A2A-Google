@@ -19,6 +19,8 @@ def agents_list(
       "Input Modes": [],
       "Output Modes": [],
       "Streaming": [],
+      "Wallet Address": [],
+      "Wallet Balance": [],
   }
   for agent_info in agents:
     df_data["Address"].append(agent_info.url)
@@ -30,6 +32,8 @@ def agents_list(
     df_data["Input Modes"].append(", ".join(agent_info.defaultInputModes))
     df_data["Output Modes"].append(", ".join(agent_info.defaultOutputModes))
     df_data["Streaming"].append(agent_info.capabilities.streaming)
+    df_data["Wallet Address"].append(agent_info.walletAddress)
+    df_data["Wallet Balance"].append(agent_info.walletBalance)
   df = pd.DataFrame(
       pd.DataFrame(df_data),
       columns=[
@@ -40,6 +44,8 @@ def agents_list(
           "Input Modes",
           "Output Modes",
           "Streaming",
+          "Wallet Address",
+          "Wallet Balance",
       ],
   )
   with me.box(

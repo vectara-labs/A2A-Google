@@ -327,6 +327,9 @@ class AgentSkill(BaseModel):
     inputModes: List[str] | None = None
     outputModes: List[str] | None = None
 
+class AgentWallet(BaseModel):
+    address: str
+    balance: float
 
 class AgentCard(BaseModel):
     name: str
@@ -340,6 +343,9 @@ class AgentCard(BaseModel):
     defaultInputModes: List[str] = ["text"]
     defaultOutputModes: List[str] = ["text"]
     skills: List[AgentSkill]
+    walletAddress: str | None = None
+    walletBalance: float | None = None
+
 
 
 class A2AClientError(Exception):
